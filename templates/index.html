@@ -74,17 +74,45 @@
           <h2>Classify Here</h2>
           <div class="project-container">
               <div class="project-card">
-                <h3>Classify your waster material</h3>  
+                <h3>Classify your waste material</h3>
                   <hr/>
-                  <img class="headshot" src="{{ url_for('static', filename='src/images/wasteimage.jpg') }}" alt="">
-                  <p class="subtext">Click on the image to upload you waste material picture.</p>
-                
+                  <img class="headshot" src="{{ url_for('static', filename='src/images/wasteimage.jpg') }}" alt="Waste Classification">
+                  <p class="subtext">Upload your waste material picture for instant classification.</p>
+
                   <form method="POST" action="/predict" enctype="multipart/form-data">
-                    <input type="file" name="image" accept=".jpg, .jpeg, .png">
-                    <input type="submit" value="Upload">
+                    <input type="file" name="image" accept=".jpg, .jpeg, .png" required>
+                    <input type="submit" value="Upload & Classify">
                 </form>
+
+                {% if error %}
+                    <div class="error-message">
+                        <h3>⚠️ Error</h3>
+                        <p>{{ error }}</p>
+                    </div>
+                {% endif %}
+
                 {% if prediction %}
-                    <h2>Predicted class: {{ prediction }}</h2>
+                    <div class="result-container">
+                        <h2>🎯 Predicted Class: <span class="prediction-label">{{ prediction|upper }}</span></h2>
+                        <p class="confidence">Confidence: <strong>{{ "%.2f"|format(confidence) }}%</strong></p>
+
+                        {% if all_predictions %}
+                        <details class="all-predictions">
+                            <summary>View all predictions</summary>
+                            <ul>
+                                {% for label, prob in all_predictions.items()|sort(attribute='1', reverse=True) %}
+                                <li>
+                                    <span class="label">{{ label|capitalize }}:</span>
+                                    <span class="probability">{{ "%.2f"|format(prob) }}%</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: {{ prob }}%"></div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                        {% endif %}
+                    </div>
                 {% endif %}
               </div>
               <div class="project-card">
